@@ -1,8 +1,9 @@
-import React, {useRef, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import './styles/App.css'
 import PostList from "./components/PostList";
 import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
+import MyInput from "./components/UI/input/MyInput";
 
 function App() {
     const [posts, setPosts] = useState([
@@ -12,10 +13,21 @@ function App() {
     ])
 
     const [selectedSort, setSelectedSort] = useState('')
+    const [searchValue, setSearchValue] = useState('')
+
+    const sortedPosts = useMemo(() => {
+        if (selectedSort) {
+            return posts.toSorted((a, b) => a[selectedSort].localeCompare(b[selectedSort]))
+        }
+        return posts
+    }, [selectedSort, posts])
+
+    const sortedAndSearchedPosts = useMemo(() => {
+        return sortedPosts.filter(post => post.title.toLowerCase().includes(searchValue.toLowerCase()))
+    }, [searchValue, sortedPosts])
 
     const sortPosts = (sort) => {
         setSelectedSort(sort)
-        setPosts(posts.toSorted((a, b) => a[sort].localeCompare(b[sort])))
     }
 
     const createPost = (newPost) => {
@@ -31,6 +43,12 @@ function App() {
             <PostForm create={createPost}/>
             <hr style={{margin: '15px 0'}}/>
             <div>
+                <MyInput
+                    type="text"
+                    placeholder='Поиск...'
+                    value={searchValue}
+                    onChange={e => setSearchValue(e.target.value)}
+                />
                 <MySelect
                     value={selectedSort}
                     onChange={sortPosts}
@@ -41,9 +59,9 @@ function App() {
                     ]}
                 />
             </div>
-            {posts.length !== 0
+            {sortedAndSearchedPosts.length !== 0
                 ?
-                <PostList remove={removePost} title='Посты про JS' posts={posts}/>
+                <PostList remove={removePost} title='Посты про JS' posts={sortedAndSearchedPosts}/>
                 :
                 <h1 style={{textAlign: "center"}}>
                     Посты не найдены
