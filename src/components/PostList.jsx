@@ -23,10 +23,10 @@ const PostList = ({remove, title, posts}) => {
                     >
                         <PostItem remove={remove} number={index + 1} post={post}/>
                     </CSSTransition>
-            )}
-        </TransitionGroup>
-</div>
-)
+                )}
+            </TransitionGroup>
+        </div>
+    )
 };
 
 export default PostList;
