@@ -11,6 +11,7 @@ import MyLoader from "./components/UI/loader/MyLoader";
 import {useFetching} from "./hooks/useFetching";
 import {getPageCount} from "./utils/pages";
 import {usePagination} from "./hooks/usePagination";
+import Pagination from "./components/UI/pagination/Pagination";
 
 function App() {
     const [posts, setPosts] = useState([])
@@ -23,9 +24,7 @@ function App() {
 
     const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
 
-    let pagesArray = usePagination(totalPages)
-
-    const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
+    const [fetchPosts, isPostsLoading, postError] = useFetching(async (limit, page) => {
         const response = await PostService.getAll(limit, page)
         setPosts(response.data)
         const totalCount = response.headers['x-total-count']
@@ -33,8 +32,13 @@ function App() {
     })
 
     useEffect(() => {
-        fetchPosts()
-    }, [page]);
+        fetchPosts(limit, page)
+    }, []);
+
+    const changePage = (page) => {
+        setPage(page)
+        fetchPosts(limit, page)
+    }
 
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
@@ -67,17 +71,11 @@ function App() {
                 </div>
                 : <PostList remove={removePost} title='Посты про JS' posts={sortedAndSearchedPosts}/>
             }
-            <div className='page__wrapper'>
-                {pagesArray.map(p =>
-                    <span
-                        onClick={() => setPage(p)}
-                        key={p}
-                        className={page === p ? 'page page__current' : 'page'}
-                    >
-                        {p}
-                    </span>
-                )}
-            </div>
+            <Pagination
+                totalPages={totalPages}
+                page={page}
+                changePage={changePage}
+            />
         </div>
     );
 }
