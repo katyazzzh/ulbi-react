@@ -4,14 +4,19 @@ import About from "../pages/About";
 import Posts from "../pages/Posts";
 import Error from "../pages/Error";
 import Post from "../pages/Post";
+import {routes} from "../router/routes";
 
 const AppRouter = () => {
     return (
         <Routes>
-            <Route path='/about' element={<About/>}/>
-            <Route path='/posts' element={<Posts/>}/>
-            <Route path='/posts/:id' element={<Post/>}/>
-            <Route path='*' element={<Error/>}/>
+            {routes.map(route =>
+                <Route
+                    path={route.path}
+                    element={route.element}
+                />
+            )}
+
+            <Route path='/' element={<Posts/>}/>
         </Routes>
     );
 };
